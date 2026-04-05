@@ -16,7 +16,7 @@ def generate_filename():
         hour += 24
         date_part -= timedelta(days=1)
 
-    return date_part.strftime("%Y%m%d") + f"{hour:02}0000.mp3"
+    return date_part.strftime("%Y%m%d") + f"{hour:02}0000"
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
 
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(file_name)
+    blob = bucket.blob(f"tmp/{os.path.basename(file_name)}.mp3")
 
     local_path = f"/tmp/{os.path.basename(file_name)}"
     print(f"Download to: {local_path}")
@@ -40,17 +40,14 @@ def main():
         return  # Jobは終了
 
     # Whisperモデルロード（ここに移動するのが安全）
-    model = whisper.load_model("base")
+    model = whisper.load_model("large-v3-turbo")
 
     print("Start transcription...")
     result = model.transcribe(local_path)
     text = result["text"]
 
     print("Upload result...")
-    output_bucket = client.bucket("jolf_oa")
-    output_blob = output_bucket.blob(
-        f"transcripts/{os.path.basename(file_name)}.txt"
-    )
+    output_blob = bucket.blob(f"transcripts/{os.path.basename(file_name)}.txt")
     output_blob.upload_from_string(text)
 
     try:
