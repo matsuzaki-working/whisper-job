@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from google.cloud import storage
 import whisper
 import os
+import io
 
 def generate_filename():
     JST = timezone(timedelta(hours=9))
@@ -40,15 +41,27 @@ def main():
         return  # Jobは終了
 
     # Whisperモデルロード（ここに移動するのが安全）
-    model = whisper.load_model("large-v3-turbo")
+    model = whisper.load_model("base")
 
     print("Start transcription...")
     result = model.transcribe(local_path)
-    text = result["text"]
 
+    #text = result["text"]
+    #print("Upload result...")
+    #output_blob = bucket.blob(f"transcripts/{os.path.basename(file_name)}.txt")
+    #output_blob.upload_from_string(text)
+
+    print("Convert to CSV...")
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["start", "end", "text"])
+    for segment in result["segments"]:
+        writer.writerow([segment["start"], segment["end"], segment["text"]])
+    csv_data = output.getvalue()
+    
     print("Upload result...")
-    output_blob = bucket.blob(f"transcripts/{os.path.basename(file_name)}.txt")
-    output_blob.upload_from_string(text)
+    output_blob = bucket.blob(f"transcripts/{os.path.basename(file_name)}.csv")
+    output_blob.upload_from_string(csv_data, content_type="text/csv")
 
     try:
         os.remove(local_path)
