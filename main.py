@@ -3,6 +3,8 @@ from google.cloud import storage
 import whisper
 import os
 import io
+import csv
+
 
 def generate_filename():
     JST = timezone(timedelta(hours=9))
