@@ -1,7 +1,9 @@
-# 必須パッケージ
+FROM python:3.11-slim
+
+WORKDIR /whisper
+#必須パッケージ
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # 依存関係を先にコピー（キャッシュ効く）
