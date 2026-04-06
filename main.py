@@ -43,7 +43,7 @@ def main():
         return  # Jobは終了
 
     # Whisperモデルロード（ここに移動するのが安全）
-    model = whisper.load_model("large")
+    model = whisper.load_model("large-v3-turb")
 
     print("Start transcription...")
     result = model.transcribe(local_path)
