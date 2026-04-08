@@ -48,6 +48,7 @@ def main():
     print("Start transcription...")
     result = model.transcribe(local_path)
 
+    result = model.transcribe(local_path, language="ja", initial_prompt="これはニッポン放送のラジオ放送です。専門用語: ニッポン放送")
     #text = result["text"]
     #print("Upload result...")
     #output_blob = bucket.blob(f"transcripts/{os.path.basename(file_name)}.txt")
